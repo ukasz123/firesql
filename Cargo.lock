@@ -152,6 +152,7 @@ dependencies = [
 name = "firesql_core"
 version = "0.0.0"
 dependencies = [
+ "itertools",
  "pest",
  "pest_derive",
 ]

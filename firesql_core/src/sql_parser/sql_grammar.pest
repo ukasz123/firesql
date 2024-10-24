@@ -12,9 +12,9 @@ id_projection = { ^":id" }
 select_projection = { object_projection | id_projection | ident }
 select_ident_list = { select_projection ~ ("," ~ select_projection)* }
 
-where_stmt = {^"WHERE" ~ where_clauses}
-where_clauses = _{ where_condition ~ (^"AND" ~ where_condition)* }
-where_condition = {
+where_stmt = { ^"WHERE" ~ where_clauses }
+where_clauses = _{ where_condition ~ ( ^"AND" ~ where_condition )* }
+where_condition = _{
     comparison | is_null | is_not_null
 }
 comparison = {
@@ -22,7 +22,7 @@ comparison = {
 }
 op = {"=" | "!=" | ">" | "<" }
 value = {
-    number | string | bool
+    reference | bool | number | string
 }
 
 number = @{
@@ -35,11 +35,13 @@ string = ${ "\"" ~ inner_string ~ "\""}
 inner_string =  @{ char* }
 char = {
     !("\"" | "\\") ~ ANY
-    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+    // | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
 }
 
 bool = {^"true" | ^"false"}
+
+reference = { ^"ref" ~ "(" ~ path ~ ")" }
 
 is_null = { ident ~ ^"is null" }
 is_not_null = {ident ~ ^"is not null" }
