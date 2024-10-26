@@ -1,6 +1,5 @@
 mod sql_grammar;
 
-
 use pest::Parser;
 use sql_grammar::*;
 
@@ -147,33 +146,33 @@ pub enum ParseError {
 }
 
 #[derive(Debug, PartialEq)]
-struct FireSQLSelect {
-    projections: Vec<SelectProjection>,
-    collection: Collection,
-    conditions: Vec<Condition>,
+pub struct FireSQLSelect {
+    pub(super) projections: Vec<SelectProjection>,
+    pub(super) collection: Collection,
+    pub(super) conditions: Vec<Condition>,
 }
 
 #[derive(Debug, PartialEq)]
-enum SelectProjection {
+pub enum SelectProjection {
     ObjectId,
     Object,
     Property(String),
 }
 
 #[derive(Debug, PartialEq)]
-struct Collection {
-    path: String,
+pub struct Collection {
+    pub(super) path: String,
 }
 
 #[derive(Debug, PartialEq)]
-enum Condition {
+pub enum Condition {
     Not(Box<Condition>),
     IsNull(String),
     Comparison(String, CompareOperations),
 }
 
 #[derive(Debug, PartialEq)]
-enum CompareOperations {
+pub enum CompareOperations {
     Equal(Value),
     NotEqual(Value),
     GreaterThan(Value),
@@ -181,11 +180,19 @@ enum CompareOperations {
 }
 
 #[derive(Debug, PartialEq)]
-enum Value {
+pub enum Value {
     Number(f64),
     String(String),
     Bool(bool),
     Reference(String),
+}
+
+impl TryFrom<&str> for FireSQLSelect {
+    type Error = ParseError;
+
+    fn try_from(stmt: &str) -> Result<Self, Self::Error> {
+        FireSQLParser::parse(stmt)
+    }
 }
 
 #[cfg(test)]

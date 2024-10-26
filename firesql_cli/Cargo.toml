@@ -4,5 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+firesql_core = { path = "../firesql_core" }
 ratatui = "0.28.1"
 tui-textarea = "0.6.1"

@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use firesql_core::FireSQLSelect;
 use ratatui::{
     crossterm::event::{self},
     layout::{Constraint, Layout},
@@ -12,7 +13,7 @@ use tui_textarea::*;
 
 pub struct QueryEditingState<'a> {
     sql_textarea: TextArea<'a>,
-    firebase_query: Option<String>,
+    firebase_query: Option<FireSQLSelect>,
 }
 
 impl QueryEditingState<'_> {
@@ -28,7 +29,8 @@ impl QueryEditingState<'_> {
     pub(crate) fn handle_events(&mut self, event: &event::Event) -> Result<(), std::io::Error> {
         if let event::Event::Key(key) = event {
             if self.sql_textarea.input(*key) {
-                self.firebase_query = Some(self.sql_textarea.lines().join("\n"))
+                self.firebase_query =
+                    FireSQLSelect::try_from(self.sql_textarea.lines().join("\n").as_str()).ok()
             }
         }
         Ok(())
@@ -55,8 +57,9 @@ impl<'a> Widget for &QueryEditingState<'a> {
         sql_block.render(left_pane, buf);
         self.sql_textarea.render(sql_area, buf);
 
-        let firebase_query: &str = self.firebase_query.as_deref().unwrap_or("");
+        let firebase_query = format!("{:?}", self.firebase_query);
         Paragraph::new(firebase_query)
+            .wrap(Wrap::default())
             .block(
                 Block::bordered()
                     .border_style(Style::new().dark_gray())
