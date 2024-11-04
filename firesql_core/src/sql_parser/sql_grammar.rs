@@ -47,7 +47,18 @@ mod test {
                 and completion is null
                 "#,
         );
-        println!("pairs: {:#?}", pairs);
+        assert!(pairs.is_ok());
+    }
+
+    #[test]
+    fn single_letter_identifiers() {
+        let pairs = FireSQLGrammarParser::parse(
+            Rule::select_stmt,
+            r#"select a from b
+                where
+                c = "d"
+                and e = 5"#,
+        );
         assert!(pairs.is_ok());
     }
 }

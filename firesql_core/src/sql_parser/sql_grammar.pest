@@ -3,7 +3,7 @@ digit = _{ '0'..'9' }
 
 WHITESPACE = _{ " " | "\t" | NEWLINE }
 
-ident = @{ alpha ~ (alpha | digit | "_")+ }
+ident = @{ (alpha | digit ) ~ (alpha | digit | "_")* }
 
 path = { ident ~ ("/" ~ ident)* }
 

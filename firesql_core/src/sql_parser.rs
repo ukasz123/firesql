@@ -7,7 +7,7 @@ struct FireSQLParser;
 
 impl FireSQLParser {
     pub fn parse(stmt: &str) -> Result<FireSQLSelect, ParseError> {
-        let parsed = FireSQLGrammarParser::parse(Rule::select_stmt, stmt)
+        let parsed = FireSQLGrammarParser::parse(Rule::select_stmt, stmt.trim())
             .map_err(ParseError::GrammarError)?
             .next()
             .expect("select statement present");
@@ -113,7 +113,7 @@ fn parse_collection(tables: pest::iterators::Pair<'_, Rule>) -> Result<Collectio
             raw_path
         )))
     } else {
-        Ok(raw_path.to_owned())
+        Ok(raw_path.trim().to_owned())
     }?;
     let collection = Collection { path };
     Ok(collection)
@@ -234,5 +234,37 @@ mod tests {
                 "#,
         );
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn single_letter_identifiers() {
+        let result = FireSQLParser::parse(
+            r#"
+                select a from b
+                where
+                c = "d"
+                and e = 5
+            "#,
+        );
+        assert!(result.is_ok());
+        assert_eq!(
+            result.unwrap(),
+            FireSQLSelect {
+                projections: vec![SelectProjection::Property("a".to_owned())],
+                collection: Collection {
+                    path: "b".to_owned()
+                },
+                conditions: vec![
+                    Condition::Comparison(
+                        "c".to_owned(),
+                        CompareOperations::Equal(Value::String("d".to_owned()))
+                    ),
+                    Condition::Comparison(
+                        "e".to_owned(),
+                        CompareOperations::Equal(Value::Number(5.0))
+                    )
+                ]
+            }
+        )
     }
 }
