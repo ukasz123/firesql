@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use firestore::{async_trait, FirestoreDb, FirestoreValue};
+use firestore::{async_trait, errors::FirestoreError, FirestoreDb, FirestoreValue};
 use itertools::Itertools;
 
 use crate::sql_parser::{FireSQLSelect, Value};
@@ -13,7 +13,7 @@ pub trait SQLExecutor<DB> {
 
 #[async_trait]
 impl SQLExecutor<FirestoreDb> for FireSQLSelect {
-    type Error = Box<dyn Error>;
+    type Error = FirestoreError;
 
     async fn execute(self, db: &FirestoreDb) -> Result<Vec<Row>, Self::Error> {
         let (collection, projections, conditions) =
@@ -75,4 +75,5 @@ impl<'a> Into<FirestoreValue> for ValueWrapper<'a> {
 }
 
 // todo: make real row
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Row(String);

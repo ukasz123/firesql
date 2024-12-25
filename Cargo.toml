@@ -1,3 +1,5 @@
 [workspace]
 members = ["firesql_core", "firesql_cli"]
 resolver = "2"
+[workspace.dependencies]
+firestore = "0.43.1"

@@ -5,6 +5,8 @@ use sql_grammar::*;
 
 struct FireSQLParser;
 
+pub type FireSQLParseResult = Result<FireSQLSelect, ParseError>;
+
 impl FireSQLParser {
     pub fn parse(stmt: &str) -> Result<FireSQLSelect, ParseError> {
         let parsed = FireSQLGrammarParser::parse(Rule::select_stmt, stmt.trim())
@@ -138,40 +140,40 @@ fn parse_projections(projections: pest::iterators::Pair<'_, Rule>) -> Vec<Select
     projections
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ParseError {
     GrammarError(pest::error::Error<Rule>),
     UnexpectedItem(String),
     InvalidCollectionPath(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FireSQLSelect {
     pub(super) projections: Vec<SelectProjection>,
     pub(super) collection: Collection,
     pub(super) conditions: Vec<Condition>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SelectProjection {
     ObjectId,
     Object,
     Property(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Collection {
     pub(super) path: String,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Condition {
     Not(Box<Condition>),
     IsNull(String),
     Comparison(String, CompareOperations),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum CompareOperations {
     Equal(Value),
     NotEqual(Value),
@@ -179,7 +181,7 @@ pub enum CompareOperations {
     LessThan(Value),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Number(f64),
     String(String),

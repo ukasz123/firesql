@@ -49,9 +49,11 @@ is_not_null = {ident ~ ^"is not null" }
 
 
 select_stmt = {
-    ^"SELECT"
+    SOI
+    ~ ^"SELECT"
     ~ select_ident_list
     ~ ^"FROM"
     ~ path
     ~ where_stmt?
+    ~ EOI
 }
