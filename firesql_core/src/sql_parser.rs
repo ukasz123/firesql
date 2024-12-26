@@ -1,7 +1,5 @@
 mod sql_grammar;
 
-use std::{fmt::write, path::Display};
-
 use pest::Parser;
 use sql_grammar::*;
 
@@ -12,7 +10,7 @@ pub type FireSQLParseResult = Result<FireSQLSelect, ParseError>;
 impl FireSQLParser {
     pub fn parse(stmt: &str) -> Result<FireSQLSelect, ParseError> {
         let parsed = FireSQLGrammarParser::parse(Rule::select_stmt, stmt.trim())
-            .map_err(ParseError::GrammarError)?
+            .map_err(|err| ParseError::GrammarError(Box::new(err)))?
             .next()
             .expect("select statement present");
         let select_stmt = match parsed.as_rule() {
@@ -144,7 +142,7 @@ fn parse_projections(projections: pest::iterators::Pair<'_, Rule>) -> Vec<Select
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ParseError {
-    GrammarError(pest::error::Error<Rule>),
+    GrammarError(Box<pest::error::Error<Rule>>),
     UnexpectedItem(String),
     InvalidCollectionPath(String),
 }

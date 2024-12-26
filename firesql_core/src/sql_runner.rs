@@ -1,25 +1,25 @@
-use std::error::Error;
 
 use firestore::{async_trait, errors::FirestoreError, FirestoreDb, FirestoreValue};
-use itertools::Itertools;
+use futures::TryFutureExt as _;
+use itertools::Itertools as _;
 
 use crate::sql_parser::{FireSQLSelect, Value};
 
 #[async_trait]
-pub trait SQLExecutor<DB> {
+pub trait SQLExecutor {
     type Error;
-    async fn execute(self, db: &DB) -> Result<Vec<Row>, Self::Error>;
+    async fn execute(self, select: FireSQLSelect) -> Result<Vec<Row>, Self::Error>;
 }
 
 #[async_trait]
-impl SQLExecutor<FirestoreDb> for FireSQLSelect {
+impl<'a> SQLExecutor for &'a FirestoreDb {
     type Error = FirestoreError;
 
-    async fn execute(self, db: &FirestoreDb) -> Result<Vec<Row>, Self::Error> {
+    async fn execute(self, select: FireSQLSelect) -> Result<Vec<Row>, Self::Error> {
         let (collection, projections, conditions) =
-            (self.collection, self.projections, self.conditions);
+            (select.collection, select.projections, select.conditions);
         let conditions = Box::new(conditions);
-        let query = db.fluent().select().from(collection.path.as_str());
+        let query = self.fluent().select().from(collection.path.as_str());
         let query = query.filter(|f| {
             let c = conditions.iter().map(|c| match c {
                 crate::sql_parser::Condition::Not(_condition) => {
@@ -48,10 +48,13 @@ impl SQLExecutor<FirestoreDb> for FireSQLSelect {
             f.for_all(c)
         });
 
-        let results = query.limit(10).query().await?;
+        let results = query
+            .query()
+            .map_ok(|results| results.into_iter().map(|d| Row(d.name)).collect_vec())
+            .await?;
 
         // todo: convert result documents into row
-        Ok(results.into_iter().map(|d| Row(d.name)).collect_vec())
+        Ok(results)
     }
 }
 
@@ -63,9 +66,9 @@ impl<'a> From<&'a Value> for ValueWrapper<'a> {
     }
 }
 
-impl<'a> Into<FirestoreValue> for ValueWrapper<'a> {
-    fn into(self) -> FirestoreValue {
-        match &self.0 {
+impl<'a> From<ValueWrapper<'a>> for FirestoreValue {
+    fn from(val: ValueWrapper<'a>) -> Self {
+        match &val.0 {
             Value::Number(n) => n.into(),
             Value::String(s) => s.into(),
             Value::Bool(b) => b.into(),

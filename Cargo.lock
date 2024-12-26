@@ -483,6 +483,7 @@ name = "firesql_core"
 version = "0.0.0"
 dependencies = [
  "firestore",
+ "futures",
  "itertools",
  "pest",
  "pest_derive",

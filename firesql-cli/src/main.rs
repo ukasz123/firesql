@@ -1,7 +1,7 @@
-use std::{io::Read, path::PathBuf};
+use std::path::PathBuf;
 
 use clap::Parser;
-use color_eyre::eyre::{Result, WrapErr};
+use color_eyre::eyre::Result;
 use firesql_core::{FireSQLParser, SQLExecutor as _};
 use firestore::{FirestoreDb, FirestoreDbOptions};
 
@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
     let sql = sql?;
     let select = FireSQLParser::parse(&sql)?;
 
-    let results = select.execute(&firestore).await?;
+    let results = &firestore.execute(select).await?;
 
     for (index, row) in results.iter().enumerate() {
         println!("{index}: {row:?}");
