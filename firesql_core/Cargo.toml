@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 pest = "2.6"
 pest_derive = "2.6"
-itertools = "0.13"
+serde_json = { version = "*", features = ["std"] }
 firestore.workspace = true
 futures.workspace = true
+gcloud-sdk.workspace = true
+itertools.workspace = true

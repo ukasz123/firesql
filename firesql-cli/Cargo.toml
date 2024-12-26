@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 firestore.workspace = true
 clap.workspace = true
+itertools.workspace = true
 color-eyre = "0.6.3"
 firesql_core = { path = "../firesql_core" }
 tokio = { version = "1", features = ["macros", "rt"] }

@@ -475,6 +475,7 @@ dependencies = [
  "color-eyre",
  "firesql_core",
  "firestore",
+ "itertools",
  "tokio",
 ]
 
@@ -484,16 +485,18 @@ version = "0.0.0"
 dependencies = [
  "firestore",
  "futures",
+ "gcloud-sdk",
  "itertools",
  "pest",
  "pest_derive",
+ "serde_json",
 ]
 
 [[package]]
 name = "firestore"
-version = "0.43.1"
+version = "0.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "483bce3ebe3bec625c4a3800a84966e966604e274ea9acbe7e6429477f915445"
+checksum = "bdbba2c9a18b47ce16358ffe33bb442256d0cc9f166883aba856746382a8bd3e"
 dependencies = [
  "async-trait",
  "backoff",
@@ -628,9 +631,9 @@ dependencies = [
 
 [[package]]
 name = "gcloud-sdk"
-version = "0.25.7"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a1130d4e37435a63bd9d968a33c11b64bf35a2013779a353e29cd3598989d39"
+checksum = "1a74ef7c29e682f146bac39c68921e2516e1f99f90742c8de56cb073990ef19f"
 dependencies = [
  "async-trait",
  "bytes",

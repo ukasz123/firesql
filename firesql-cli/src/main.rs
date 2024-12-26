@@ -4,6 +4,7 @@ use clap::Parser;
 use color_eyre::eyre::Result;
 use firesql_core::{FireSQLParser, SQLExecutor as _};
 use firestore::{FirestoreDb, FirestoreDbOptions};
+use itertools::Itertools as _;
 
 mod arguments;
 
@@ -33,9 +34,16 @@ async fn main() -> Result<()> {
     let select = FireSQLParser::parse(&sql)?;
 
     let results = &firestore.execute(select).await?;
+    if results.is_empty() {
+        println!("Nothing found!");
+    }
 
     for (index, row) in results.iter().enumerate() {
-        println!("{index}: {row:?}");
+        print!("{index}: ");
+        let columns = row.columns();
+
+        let row_text = columns.iter().map(|(_k, v)| v).join(" | ");
+        println!("{}", row_text);
     }
     Ok(())
 }
@@ -43,6 +51,7 @@ async fn main() -> Result<()> {
 fn read_sql_from_stdin() -> Result<String> {
     let stdin = std::io::stdin();
     let mut output = String::new();
+    println!("Enter the select statement:");
     loop {
         stdin.read_line(&mut output)?;
         if firesql_core::FireSQLParser::parse(&output).is_ok() {
