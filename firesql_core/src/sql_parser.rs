@@ -1,9 +1,11 @@
 mod sql_grammar;
 
+use std::{fmt::write, path::Display};
+
 use pest::Parser;
 use sql_grammar::*;
 
-struct FireSQLParser;
+pub struct FireSQLParser;
 
 pub type FireSQLParseResult = Result<FireSQLSelect, ParseError>;
 
@@ -145,6 +147,26 @@ pub enum ParseError {
     GrammarError(pest::error::Error<Rule>),
     UnexpectedItem(String),
     InvalidCollectionPath(String),
+}
+
+impl core::fmt::Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParseError::GrammarError(rule) => write!(f, "Invalid SQL. {}", rule),
+            ParseError::UnexpectedItem(item) => write!(f, "Unexpected item: {}", item),
+            ParseError::InvalidCollectionPath(path) => {
+                write!(f, "Invalid collection path: {}", path)
+            }
+        }
+    }
+}
+impl std::error::Error for ParseError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            ParseError::GrammarError(inner) => Some(inner),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
