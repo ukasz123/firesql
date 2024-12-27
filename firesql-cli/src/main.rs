@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use ascii_table::AsciiTable;
 use clap::Parser;
 use color_eyre::eyre::Result;
 use firesql_core::{FireSQLParser, SQLExecutor as _};
@@ -38,13 +39,21 @@ async fn main() -> Result<()> {
         println!("Nothing found!");
     }
 
-    for (index, row) in results.iter().enumerate() {
-        print!("{index}: ");
-        let columns = row.columns();
-
-        let row_text = columns.iter().map(|(_k, v)| v).join(" | ");
-        println!("{}", row_text);
+    let mut ascii_table = AsciiTable::default();
+    ascii_table
+        .column(0)
+        .set_header("rowid")
+        .set_align(ascii_table::Align::Right);
+    let binding = results.get(0);
+    let i = binding.iter().flat_map(|row| row.columns());
+    for (index, (name, _)) in i.enumerate() {
+        ascii_table.column(index + 1).set_header(name);
     }
+    let data = results.iter().enumerate().map(|(index, row)| {
+        std::iter::once(format!("{index}"))
+            .chain(row.columns().iter().map(|(_, value)| value.clone()))
+    });
+    ascii_table.print(data);
     Ok(())
 }
 
@@ -61,5 +70,7 @@ fn read_sql_from_stdin() -> Result<String> {
 }
 
 fn read_from_input_file(input_file: &PathBuf) -> Result<String> {
-    Ok(std::fs::read_to_string(input_file)?)
+    let statement = std::fs::read_to_string(input_file)?;
+    println!("{statement}");
+    Ok(statement)
 }

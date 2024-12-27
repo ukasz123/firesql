@@ -94,6 +94,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c042108f3ed77fd83760a5fd79b53be043192bb3b9dba91d8c574c0ada7850c8"
 
 [[package]]
+name = "ascii_table"
+version = "4.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adb7e515f68a8667f957e85c7d59639fe1fa2e0b06c3c2394869b73a404e52ed"
+
+[[package]]
 name = "async-compression"
 version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -471,6 +477,7 @@ dependencies = [
 name = "firesql-cli"
 version = "0.1.0"
 dependencies = [
+ "ascii_table",
  "clap",
  "color-eyre",
  "firesql_core",
