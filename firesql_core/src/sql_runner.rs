@@ -30,7 +30,32 @@ impl<'a> SQLExecutor for &'a FirestoreDb {
         } else {
             query
         };
-        let query = query.from(collection.path.as_str());
+        let collection_path_segments: Vec<&str> = collection.path.split("/").collect_vec();
+
+        let parent = if collection_path_segments.len() > 2 {
+            let chunks = collection_path_segments.iter().chunks(2);
+            let mut parent_documents = chunks
+                .into_iter()
+                .filter_map(|mut pair| pair.next_tuple::<(_, _)>());
+            let (first_collection_name, first_document_id) = parent_documents
+                .next()
+                .expect("First document path should be always present");
+            let mut path_builder = self.parent_path(first_collection_name, first_document_id)?;
+            for (collection_name, document_id) in parent_documents {
+                path_builder = path_builder.at(collection_name, document_id)?;
+            }
+            Some(path_builder)
+        } else {
+            None
+        };
+        let target_collection = collection_path_segments
+            .last()
+            .expect("Collection is missing");
+        let query = query.from(*target_collection);
+        let query = match parent {
+            Some(parent) => query.parent(parent),
+            None => query,
+        };
 
         let query = query.filter(|f| {
             let c = conditions.iter().map(|c| match c {
@@ -85,7 +110,7 @@ impl<'a> SQLExecutor for &'a FirestoreDb {
                                     property.clone(),
                                     d.fields
                                         .get(property)
-                                        .map(|v| firestore_value_to_string(&v))
+                                        .map(firestore_value_to_string)
                                         .unwrap_or_else(|| "nil".to_owned()),
                                 ),
                             })
@@ -133,7 +158,7 @@ fn firestore_value_to_string(v: &gcloud_sdk::google::firestore::v1::Value) -> St
         gcloud_sdk::google::firestore::v1::value::ValueType::TimestampValue(timestamp) => {
             format!("{timestamp}")
         }
-        gcloud_sdk::google::firestore::v1::value::ValueType::StringValue(v) => format!("{v}"),
+        gcloud_sdk::google::firestore::v1::value::ValueType::StringValue(v) => v.to_string(),
         gcloud_sdk::google::firestore::v1::value::ValueType::BytesValue(vec) => todo!(),
         gcloud_sdk::google::firestore::v1::value::ValueType::ReferenceValue(r) => format!("#:{r}"),
         gcloud_sdk::google::firestore::v1::value::ValueType::GeoPointValue(lat_lng) => {

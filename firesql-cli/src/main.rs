@@ -5,7 +5,6 @@ use clap::Parser;
 use color_eyre::eyre::Result;
 use firesql_core::{FireSQLParser, SQLExecutor as _};
 use firestore::{FirestoreDb, FirestoreDbOptions};
-use itertools::Itertools as _;
 
 mod arguments;
 
@@ -44,7 +43,7 @@ async fn main() -> Result<()> {
         .column(0)
         .set_header("rowid")
         .set_align(ascii_table::Align::Right);
-    let binding = results.get(0);
+    let binding = results.first();
     let i = binding.iter().flat_map(|row| row.columns());
     for (index, (name, _)) in i.enumerate() {
         ascii_table.column(index + 1).set_header(name);
