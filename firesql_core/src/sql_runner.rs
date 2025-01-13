@@ -13,7 +13,7 @@ pub trait SQLExecutor {
 }
 
 #[async_trait]
-impl<'a> SQLExecutor for &'a FirestoreDb {
+impl SQLExecutor for &FirestoreDb {
     type Error = FirestoreError;
 
     async fn execute(self, select: FireSQLSelect) -> Result<Vec<Row>, Self::Error> {
@@ -159,7 +159,7 @@ fn firestore_value_to_string(v: &gcloud_sdk::google::firestore::v1::Value) -> St
             format!("{timestamp}")
         }
         gcloud_sdk::google::firestore::v1::value::ValueType::StringValue(v) => v.to_string(),
-        gcloud_sdk::google::firestore::v1::value::ValueType::BytesValue(vec) => todo!(),
+        gcloud_sdk::google::firestore::v1::value::ValueType::BytesValue(_vec) => todo!(),
         gcloud_sdk::google::firestore::v1::value::ValueType::ReferenceValue(r) => format!("#:{r}"),
         gcloud_sdk::google::firestore::v1::value::ValueType::GeoPointValue(lat_lng) => {
             format!("{}:{}", lat_lng.latitude, lat_lng.longitude)
