@@ -11,18 +11,23 @@ mod arguments;
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
     color_eyre::install()?;
-
+    tracing_subscriber::fmt::init();
     let args = arguments::Args::try_parse()?;
-
+    let database_id = args.database.unwrap_or_else(|| "(default)".to_string());
     let firestore = match args.gcp_service_account_key_file {
         Some(path) => {
             FirestoreDb::with_options_service_account_key_file(
-                FirestoreDbOptions::new(args.firebase_project_id),
+                FirestoreDbOptions::new(args.firebase_project_id).with_database_id(database_id),
                 path,
             )
             .await?
         }
-        None => FirestoreDb::new(args.firebase_project_id).await?,
+        None => {
+            FirestoreDb::with_options(
+                FirestoreDbOptions::new(args.firebase_project_id).with_database_id(database_id),
+            )
+            .await?
+        }
     };
 
     let sql = match args.input {

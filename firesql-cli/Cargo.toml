@@ -11,3 +11,5 @@ color-eyre = "0.6.3"
 firesql_core = { path = "../firesql_core" }
 tokio = { version = "1", features = ["macros", "rt"] }
 ascii_table = "4.0.5"
+tracing.workspace = true
+tracing-subscriber = "0.3.23"

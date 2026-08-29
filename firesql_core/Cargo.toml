@@ -11,3 +11,4 @@ firestore.workspace = true
 futures.workspace = true
 gcloud-sdk.workspace = true
 itertools.workspace = true
+tracing.workspace = true

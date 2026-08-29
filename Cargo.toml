@@ -11,3 +11,4 @@ gcloud-sdk = { version = "0.26.0", default-features = false, features = [
 tokio = { version = "1" }
 futures = "0.3.31"
 itertools = "0.13"
+tracing = "*"

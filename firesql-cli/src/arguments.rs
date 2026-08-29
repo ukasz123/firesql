@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{command, Parser};
+use clap::Parser;
 
 /// Simple program to perform SQL queries on Firestore
 #[derive(Parser, Debug)]
@@ -17,4 +17,7 @@ pub(crate) struct Args {
     /// Path to file containing SQL select statement to run
     #[arg(short, long)]
     pub(crate) input: Option<PathBuf>,
+
+    #[arg(long, value_name = "Database to perform query against")]
+    pub(crate) database: Option<String>,
 }

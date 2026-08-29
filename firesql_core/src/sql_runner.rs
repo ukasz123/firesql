@@ -84,7 +84,7 @@ impl SQLExecutor for &FirestoreDb {
 
             f.for_all(c)
         });
-
+        tracing::trace!(query= ?query, "Running query");
         let results = query
             .query()
             .map_ok(|results| {
