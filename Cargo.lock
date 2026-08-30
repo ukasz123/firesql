@@ -479,6 +479,7 @@ dependencies = [
  "firesql_core",
  "firestore",
  "itertools 0.13.0",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",

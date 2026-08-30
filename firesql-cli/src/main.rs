@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 use ascii_table::AsciiTable;
 use clap::Parser;
@@ -39,6 +39,18 @@ async fn main() -> Result<()> {
     let select = FireSQLParser::parse(&sql)?;
 
     let results = &firestore.execute(select).await?;
+    match args.output_mode {
+        arguments::OutputMode::AnsiTable => {
+            print_ansi_table(&results[..]);
+        }
+        arguments::OutputMode::Json => {
+            print_json(&results[..])?;
+        }
+    }
+    Ok(())
+}
+
+fn print_ansi_table(results: &[firesql_core::Row]) {
     if results.is_empty() {
         println!("Nothing found!");
     }
@@ -58,6 +70,21 @@ async fn main() -> Result<()> {
             .chain(row.columns().iter().map(|(_, value)| value.clone()))
     });
     ascii_table.print(data);
+}
+
+fn print_json(results: &[firesql_core::Row]) -> Result<()> {
+    serde_json::to_writer(
+        std::io::stdout(),
+        &results
+            .iter()
+            .map(|r| {
+                r.columns()
+                    .iter()
+                    .cloned()
+                    .collect::<HashMap<String, String>>()
+            })
+            .collect::<Vec<_>>(),
+    )?;
     Ok(())
 }
 

@@ -13,3 +13,4 @@ tokio = { version = "1", features = ["macros", "rt"] }
 ascii_table = "4.0.5"
 tracing.workspace = true
 tracing-subscriber = "0.3.23"
+serde_json = "1.0.151"

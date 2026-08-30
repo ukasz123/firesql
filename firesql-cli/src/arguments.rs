@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 /// Simple program to perform SQL queries on Firestore
 #[derive(Parser, Debug)]
@@ -20,4 +20,13 @@ pub(crate) struct Args {
 
     #[arg(long, value_name = "Database to perform query against")]
     pub(crate) database: Option<String>,
+
+    #[arg(long, short, value_name = "Results output format", value_enum, default_value_t=OutputMode::AnsiTable)]
+    pub(crate) output_mode: OutputMode,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub(crate) enum OutputMode {
+    AnsiTable,
+    Json,
 }
